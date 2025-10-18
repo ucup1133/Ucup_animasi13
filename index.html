@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Anime Slider - by ucup</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h2 class="credit">by ucup</h2>
+
+    <div class="viewer">
+      <!-- gambar lokal dicoba dulu (img1.jpg dst). Jika gagal, onerror ganti ke placeholder picsum -->
+      <img id="mainImg" src="img1.jpg"
+           alt="anime"
+           onerror="this.onerror=null; this.src='https://picsum.photos/seed/fallback1/600/800';" />
+
+      <div class="label" id="label">Image 1</div>
+
+      <button class="nav prev" id="prevBtn" aria-label="previous">‹</button>
+      <button class="nav next" id="nextBtn" aria-label="next">›</button>
+    </div>
+
+    <div class="thumbs" id="thumbs">
+      <!-- Thumb links: ganti nama file jika kamu punya file lokal -->
+      <button class="thumb" data-src="bd02295427ca4ba32faf1598ff5bfcbb.jpg" data-label="Naruto Uzumaki">1</button>
+      <button class="thumb" data-src="49-499780_sasuke-png-image-background-sasuke-naruto-full-body.png" data-label="Sasuke Uchiha">2</button>
+      <button class="thumb" data-src="satoru-gojo-jujutsu-2880x1800-9292.jpg" data-label="Gojo Satoru">3</button>
+      <button class="thumb" data-src="900003581.jpg" data-label="Luffy">4</button>
+    </div>
+
+    <p class="hint">Tip: letakkan file lokal bernama <code>img1.jpg</code>, <code>img2.jpg</code>... di folder yang sama.</p>
+  </div>
+
+  <script>
+    // Daftar fallback seeds (dipakai kalau file lokal tidak ada)
+    const fallbacks = [
+      'https://picsum.photos/seed/naruto/600/800',
+      'https://picsum.photos/seed/sasuke/600/800',
+      'https://picsum.photos/seed/gojo/600/800',
+      'https://picsum.photos/seed/luffy/600/800'
+    ];
+
+    const img = document.getElementById('mainImg');
+    const label = document.getElementById('label');
+    const thumbs = Array.from(document.querySelectorAll('.thumb'));
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let index = 0; // 0..thumbs.length-1
+
+    // Helper: set image with fallback handler
+    function setImageBySrc(src, lbl, idx) {
+      img.src = src;
+      label.textContent = lbl || `Image ${idx+1}`;
+      // apabila src lokal gagal, onerror akan mengganti ke fallback berdasarkan index
+      img.onerror = function() {
+        this.onerror = null;
+        this.src = fallbacks[idx] || 'https://picsum.photos/600/800';
+      };
+      index = idx;
+      highlightThumb();
+    }
+
+    // highlight tombol thumb aktif
+    function highlightThumb() {
+      thumbs.forEach((t, i) => {
+        if (i === index) t.classList.add('active');
+        else t.classList.remove('active');
+      });
+    }
+
+    // bind thumbs
+    thumbs.forEach((t, i) => {
+      t.addEventListener('click', () => {
+        const s = t.dataset.src;
+        const l = t.dataset.label || `Image ${i+1}`;
+        setImageBySrc(s, l, i);
+      });
+    });
+
+    prevBtn.addEventListener('click', () => {
+      const next = (index - 1 + thumbs.length) % thumbs.length;
+      thumbs[next].click();
+    });
+    nextBtn.addEventListener('click', () => {
+      const next = (index + 1) % thumbs.length;
+      thumbs[next].click();
+    });
+
+    // Auto-play slideshow (opsional): uncomment jika mau otomatis
+    // setInterval(() => { nextBtn.click(); }, 4000);
+
+    // Inisialisasi ke thumb pertama
+    thumbs[0].click();
+  </script>
+</body>
+</html>
